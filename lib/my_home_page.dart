@@ -10,7 +10,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String? userName;
+  String userName = '';
   int count = 0;
   bool isLoading = true;
   @override
@@ -22,27 +22,38 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> loadData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      userName = prefs.getString('userName');
+      userName = prefs.getString('userName') ?? '';
+      count = prefs.getInt('counter') ?? 0;
 
       isLoading = false;
     });
+  }
+
+  Future<void> updateCounter(int newCount) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      count = newCount;
+    });
+    await prefs.setInt('counter', newCount);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Center(
             child: InkWell(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => UserName()),
                 );
+                loadData();
               },
               child:
-                  userName!.isEmpty
+                  userName.isEmpty
                       ? Text(
                         "Hi, _ _ _",
                         style: TextStyle(
@@ -51,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           fontWeight: FontWeight.w600,
                         ),
                       )
-                      : Text(userName!),
+                      : Text(userName),
             ),
           ),
           Text("Your count is:"),
@@ -66,8 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: InkWell(
                   onTap: () {
                     if (userName!.isNotEmpty) {
-                      count = count + 1;
-                      setState(() {});
+                      updateCounter(count + 1);
                     }
                   },
                   child: Card(
@@ -84,8 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: InkWell(
                   onTap: () {
                     if (userName!.isNotEmpty) {
-                      count = count - 1;
-                      setState(() {});
+                      updateCounter(count - 1);
                     }
                   },
                   child: Card(

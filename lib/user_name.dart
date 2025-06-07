@@ -10,12 +10,18 @@ class UserName extends StatelessWidget {
     TextEditingController userNameController = TextEditingController();
     return Scaffold(
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Form(
             key: key,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextField(
+                TextFormField(
+                  controller: userNameController,
+                  validator: (val) {
+                    return val!.isEmpty ? "Required" : null;
+                  },
                   decoration: InputDecoration(hintText: "Enter  username"),
                 ),
                 ElevatedButton(
@@ -23,7 +29,8 @@ class UserName extends StatelessWidget {
                     if (key.currentState!.validate()) {
                       SharedPreferences sp =
                           await SharedPreferences.getInstance();
-                      sp.setString('userName', userNameController.text);
+                      await sp.setString('userName', userNameController.text);
+                      print("My name is ${sp.getString('userName')}");
                       Navigator.pop(context);
                     } else {
                       print("Please enter form field");
